@@ -16,17 +16,15 @@ var polygon = L.polygon([
 ]).addTo(mymap)
 
 var circle = L.circle(pos1, {
-    color: 'pink',
-    fillColor: '#f03',
-    fillOpacity: 0.7,
+    color: '#f06292',
+    fillOpacity: 1,
     radius: 500
 }).addTo(mymap);
 
 
 var circle2 = L.circle(pos2, {
-    color: 'blue',
-    fillColor: '#3887BE',
-    fillOpacity: 0.7,
+    color: '#1e88e5',
+    fillOpacity: 1,
     radius: 500
 }).addTo(mymap);
 
