@@ -1,28 +1,49 @@
 import { Form, Button, Row, Col } from "react-bootstrap";
 import React, { useState } from "react";
+import * as MTree from "../modules/tree";
+const R = require("ramda");
 
-const fRelationCss = { color: "white", "min-height": "100vh" };
+const fRelationCss = { color: "white", minHeight: "100vh" };
 
 function FRelationForm(props) {
-  const [treeValue, setTreeValue] = useState({
-    rootNode: { name: "" },
-  });
-
+  const [treeValue, setTreeValue] = useState(MTree.getEmptyTree());
+  const [currentCharacter, setCurrentCharacter] = useState(
+    MTree.getEmptyCharacter()
+  );
   const [showCharacterForm, setShowCharacterForm] = useState(false);
 
   const handleTreeNameChange = (event) => {
-    setTreeValue({ ...treeValue, rootNode: { name: event.target.value } });
+    let tree = MTree.updateTreeName(treeValue, event.target.value);
+    setTreeValue(tree);
+    props.treeUpdated(tree);
   };
 
-  //   changeHandler = (event) => {
-  //     event.persist();
+  const handleCharacterNameChange = (event) => {
+    let char = R.merge(currentCharacter, { name: event.target.value });
+    let tree = MTree.addOrUpdateCharacter(treeValue, char);
+    setCurrentCharacter(char);
+    setTreeValue(tree);
+    props.treeUpdated(tree);
+  };
 
-  //     // let value = event.target.value;
-  //     console.log("hi");
-  //     // this.setState(prevState => ({
-  //     //   item: { ...prevState.item,  [event.target.name]: value }
-  //     // }))
-  //   };
+  const handleCharacterGenderChange = (event) => {
+    let char = R.merge(currentCharacter, { gender: event.target.id });
+    let tree = MTree.addOrUpdateCharacter(treeValue, char);
+    setCurrentCharacter(char);
+    setTreeValue(tree);
+    props.treeUpdated(tree);
+  };
+
+  const resetCharacterBtn = () => {
+    let tree = MTree.deleteCharacter(treeValue, currentCharacter);
+    setCurrentCharacter(MTree.getEmptyCharacter());
+    setTreeValue(tree);
+    props.treeUpdated(tree);
+  };
+
+  const submitCharacterBtn = () => {
+    setCurrentCharacter(MTree.getEmptyCharacter());
+  };
 
   return (
     <div style={fRelationCss}>
@@ -41,9 +62,11 @@ function FRelationForm(props) {
           </Form.Text>
           <Button
             variant="primary"
-            disabled={ treeValue.rootNode.name.length<1  }
+            disabled={treeValue.rootNode.name.length < 1}
             style={{ float: "right" }}
-            onClick={ (e) => {setShowCharacterForm(true)}}
+            onClick={(e) => {
+              setShowCharacterForm(true);
+            }}
           >
             Create
           </Button>
@@ -54,30 +77,41 @@ function FRelationForm(props) {
           <>
             <Form.Group controlId="formBasicPassword">
               <Form.Label>Character/Element Name</Form.Label>
-              <Form.Control type="text" placeholder="eg: Icarus" />
+              <Form.Control
+                type="text"
+                placeholder="eg: Icarus"
+                value={currentCharacter.name}
+                onChange={handleCharacterNameChange}
+              />
             </Form.Group>
 
             <Form.Group controlId="formBasicCheckbox">
               <Form.Check
                 inline
                 label="Male"
+                checked={currentCharacter.gender == "Male"}
                 name="gender"
                 type="radio"
-                id={`inline-radio-1`}
+                onChange={handleCharacterGenderChange}
+                id="Male"
               />
               <Form.Check
                 inline
                 label="Female"
+                checked={currentCharacter.gender == "Female"}
+                onChange={handleCharacterGenderChange}
                 name="gender"
                 type="radio"
-                id={`inline-radio-2`}
+                id="Female"
               />
               <Form.Check
                 inline
                 label="Can't say"
+                checked={currentCharacter.gender == "NA"}
+                onChange={handleCharacterGenderChange}
                 name="gender"
                 type="radio"
-                id={`inline-radio-3`}
+                id="NA"
               />
             </Form.Group>
 
@@ -95,10 +129,16 @@ function FRelationForm(props) {
             <Button variant="primary"> + Add Relation </Button>
             <hr />
 
-            <Button variant="primary"> Reset </Button>
-            <Button variant="primary" style={{ float: "right" }}>
+            <Button variant="primary" onClick={resetCharacterBtn}>
               {" "}
-              Submit Character{" "}
+              Reset{" "}
+            </Button>
+            <Button
+              variant="primary"
+              style={{ float: "right" }}
+              onClick={submitCharacterBtn}
+            >
+              Submit Character
             </Button>
           </>
         ) : null}
